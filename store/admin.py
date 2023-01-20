@@ -1,3 +1,11 @@
 from django.contrib import admin
+from django.contrib.admin import ModelAdmin
+from .models import Book
 
-# Register your models here.
+
+# Чтобы класс появился в админке и могли создавать объекты через админку.
+@admin.register(Book)
+class BookAdmin(ModelAdmin):
+    pass
+
+
