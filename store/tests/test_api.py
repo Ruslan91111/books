@@ -7,7 +7,7 @@ from store.serializers import BooksSerializer
 
 # Тестируем API - запросы.
 class BooksApiTestCase(APITestCase):
-    """Test work of serialazer"""
+    """Test work of API"""
     def test_get(self):
         # Создаем 2 тестовых экземпляра книг в тестовой БД.
         book_1 = Book.objects.create(name='Test book 1', price=25)
