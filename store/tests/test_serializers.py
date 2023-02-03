@@ -4,11 +4,15 @@ from store.serializers import BooksSerializer
 
 
 # Тестируем работу сериализатора.
-# В data собираем результат работы сериализатора, т.е. сериализацию двух объектов.
-# В переменную expected_data, то что ожидаем увидеть от работы сериализатора.
+# В var data собираем результат работы сериализатора, т.е. сериализацию двух тестовых объектов.
+# В var expected_data, то что ожидаем увидеть от работы сериализатора.
 # Сравниваем обе переменных
 class BookSerializerTestCase(TestCase):
-    """Test work of """
+<<<<<<< HEAD
+    """Test work of serializer"""
+=======
+    """Test work of serializer"""
+>>>>>>> testing2
     def test_ok(self):
         book_1 = Book.objects.create(name='Test book 1', price=25)
         book_2 = Book.objects.create(name='Test book 2', price=55)
