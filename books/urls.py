@@ -13,8 +13,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     re_path('', include('social_django.urls', namespace='social')),
     path('auth/', auth)
-
 ]
 
 # Добавляем urls нашего router.
 urlpatterns += router.urls
+
+

@@ -87,8 +87,9 @@ DATABASES = {
 }
 }
 
+
+# Аутентификация через Git аккаунт.
 AUTHENTICATION_BACKENDS = (
-    # Настройка авторизации через Github.
     'social_core.backends.github.GithubOAuth2',
     'django.contrib.auth.backends.ModelBackend',
 )
@@ -146,10 +147,10 @@ REST_FRAMEWORK = {
 }
 
 # Настройка авторизации через Github.
-
-SOCIAL_AUTH_POSTGRES_JSONFIELD_ENABLED  = True
+SOCIAL_AUTH_JSONFIELD_ENABLED = True
 SOCIAL_AUTH_GITHUB_KEY = 'ff36ba14c78522117684'
-SOCIAL_AUTH_GITHUB_SECRET = '343517f51a43e8747514fa292348d8ea89d790b4 '
+SOCIAL_AUTH_GITHUB_SECRET = '3245e3bb38e24ad66d2de2d271e733aec321e96c'
+
 
 # REST_FRAMEWORK = {
 #     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
