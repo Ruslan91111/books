@@ -72,6 +72,34 @@ class BooksApiTestCase(APITestCase):
         # Проверяем количество книг в тестовой БД после создания книги.
         self.assertEqual(4, Book.objects.all().count())
 
+    # Тестируем обновление экземпляра.
+    def test_update(self):
+        # url для изменения экземпляра с указанием id.
+        url = reverse('book-detail', args=(self.book_1.id,))
+        # Данные существующего в тестовой БД экземпляра с изменением цены.
+        data = {
+            "name": self.book_1.name,
+            "price": 575,
+            "author_name": self.book_1.author_name
+        }
+        # Конвертируем в JSON формат
+        json_data = json.dumps(data)
+        # Логиним тестового пользователя.
+        self.client.force_login(self.user)
+        # Формируем ответ при обращении (PUT) тестового пользователя к серверу, при
+        # этом указываем передаваемые данные в формате json и описание типа данных.
+        response = self.client.put(url, data=json_data, content_type='application/json')
+        # Сравниваем ожидаемый статус соединения и получаемый статус при обращении клиента.
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+
+        # Пересоздать(перезалить) экземпляр Book, поскольку наши изменения update сохранились в БД.
+        # self.book_1 = Book.objects.get(id=self.book_1.id)
+        # Либо вариант попроще.
+        self.book_1.refresh_from_db()
+
+        # Проверяем, что поле реально изменилось.
+        self.assertEqual(575, self.book_1.price)
+
 
 
 
