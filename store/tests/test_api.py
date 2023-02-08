@@ -3,6 +3,7 @@ import json
 from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework import status
+from rest_framework.exceptions import ErrorDetail
 from rest_framework.test import APITestCase
 from store.models import Book
 from store.serializers import BooksSerializer
@@ -16,7 +17,7 @@ class BooksApiTestCase(APITestCase):
         # Создаем тестового пользователя, для решения вопроса с авторизацией при проверки POST запроса.
         self.user = User.objects.create(username='test_username')
         # Создаем 3 тестовых экземпляра книг в тестовой БД.
-        self.book_1 = Book.objects.create(name='Test book 1', price=25, author_name='Author 1')
+        self.book_1 = Book.objects.create(name='Test book 1', price=25, author_name='Author 1', owner=self.user)
         self.book_2 = Book.objects.create(name='Test book 2', price=55, author_name='Author 5')
         self.book_3 = Book.objects.create(name='Test book Author 1', price=55, author_name='Author 2')
 
@@ -75,7 +76,6 @@ class BooksApiTestCase(APITestCase):
         # Проверяем работу механизма, что пользователь, создавший книгу сохраняется в качестве ее владельца.
         self.assertEqual(self.user, Book.objects.last().owner)
 
-
     # Тестируем обновление экземпляра.
     def test_update(self):
         # url для изменения экземпляра с указанием id.
@@ -102,6 +102,66 @@ class BooksApiTestCase(APITestCase):
         self.book_1.refresh_from_db()
 
         # Проверяем, что поле реально изменилось.
+        self.assertEqual(575, self.book_1.price)
+
+    # Тестируем обновление экземпляра.
+    def test_update_not_owner(self):
+        # Другой авторизованный пользователь, не владелец.
+        self.user2 = User.objects.create(username='test_username2',)
+        # url для изменения экземпляра с указанием id.
+        url = reverse('book-detail', args=(self.book_1.id,))
+        # Данные существующего в тестовой БД экземпляра с изменением цены.
+        data = {
+            "name": self.book_1.name,
+            "price": 575,
+            "author_name": self.book_1.author_name
+        }
+        # Конвертируем в JSON формат
+        json_data = json.dumps(data)
+        # Логиним тестового пользователя.
+        self.client.force_login(self.user2)
+        # Формируем ответ при обращении (PUT) тестового пользователя к серверу, при
+        # этом указываем передаваемые данные в формате json и описание типа данных.
+        response = self.client.put(url, data=json_data, content_type='application/json')
+        # Сравниваем ожидаемый статус соединения и получаемый статус при обращении клиента.
+        self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
+        self.assertEqual({'detail': ErrorDetail(string='You do not have permission to perform this action.',
+                                                code='permission_denied')}, response.data)
+
+        # Пересоздать(перезалить) экземпляр Book, поскольку наши изменения update сохранились в БД.
+        # self.book_1 = Book.objects.get(id=self.book_1.id)
+        # Либо вариант попроще.
+        self.book_1.refresh_from_db()
+
+        # Проверяем, что поле не изменилось.
+        self.assertEqual(25, self.book_1.price)
+
+    def test_update_not_owner_but_staff(self):
+        # Другой авторизованный пользователь, не владелец, но персонал.
+        self.user2 = User.objects.create(username='test_username2',
+                                         is_staff=True)
+        # url для изменения экземпляра с указанием id.
+        url = reverse('book-detail', args=(self.book_1.id,))
+        # Данные существующего в тестовой БД экземпляра с изменением цены.
+        data = {
+            "name": self.book_1.name,
+            "price": 575,
+            "author_name": self.book_1.author_name
+        }
+        # Конвертируем в JSON формат
+        json_data = json.dumps(data)
+        # Логиним тестового пользователя.
+        self.client.force_login(self.user2)
+        # Формируем ответ при обращении (PUT) тестового пользователя к серверу, при
+        # этом указываем передаваемые данные в формате json и описание типа данных.
+        response = self.client.put(url, data=json_data, content_type='application/json')
+        # Сравниваем ожидаемый статус соединения и получаемый статус при обращении клиента.
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+
+        # Пересоздать(перезалить) экземпляр Book, поскольку наши изменения update сохранились в БД.
+        self.book_1.refresh_from_db()
+
+        # Проверяем, что поле изменилось.
         self.assertEqual(575, self.book_1.price)
 
     # Тестируем удаление экземпляра.
@@ -151,7 +211,8 @@ class BooksApiTestCase(APITestCase):
             "id": self.book_1.id,
             "name": self.book_1.name,
             "price": 25,
-            "author_name": self.book_1.author_name
+            "author_name": self.book_1.author_name,
+            "owner": self.book_1.owner,
         }
 
         # Пропускаем через сериалайзер.
