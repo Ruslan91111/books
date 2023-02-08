@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 
 
@@ -8,6 +9,7 @@ class Book(models.Model):
     # В данном примере 5 цифр до запятой, 2 после.
     price = models.DecimalField(max_digits=7, decimal_places=2)
     author_name = models.CharField(max_length=255)
+    owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
     # Переопределение магического метода - строкового представления экземпляра класса.
     def __str__(self):

@@ -72,6 +72,9 @@ class BooksApiTestCase(APITestCase):
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
         # Проверяем количество книг в тестовой БД после создания книги.
         self.assertEqual(4, Book.objects.all().count())
+        # Проверяем работу механизма, что пользователь, создавший книгу сохраняется в качестве ее владельца.
+        self.assertEqual(self.user, Book.objects.last().owner)
+
 
     # Тестируем обновление экземпляра.
     def test_update(self):
