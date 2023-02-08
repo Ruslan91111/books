@@ -20,6 +20,7 @@ class BooksApiTestCase(APITestCase):
         self.book_2 = Book.objects.create(name='Test book 2', price=55, author_name='Author 5')
         self.book_3 = Book.objects.create(name='Test book Author 1', price=55, author_name='Author 2')
 
+    # Тестируем предоставления(GET) списка всех книг.
     def test_get(self):
         # DRF reverse создает нужный нам url. Для получения списка при помощи ViewSet 'book-list',
         # также можно 'book-detail'.
@@ -100,6 +101,45 @@ class BooksApiTestCase(APITestCase):
         # Проверяем, что поле реально изменилось.
         self.assertEqual(575, self.book_1.price)
 
+    # Тестируем удаление экземпляра.
+    def test_delete(self):
+        # url для удаления экземпляра с указанием id.
+        url = reverse('book-detail', args=(self.book_1.id,))
+        # Данные существующего в тестовой БД экземпляра с изменением цены.
+        data = {
+            "id": self.book_1.id,
+            }
+        # Конвертируем в JSON формат
+        json_data = json.dumps(data)
+        # Логиним тестового пользователя.
+        self.client.force_login(self.user)
+        # Формируем ответ при обращении (delete) тестового пользователя к серверу, при
+        response = self.client.delete(url, data=json_data, content_type='application/json')
+        # Сравниваем ожидаемый статус соединения и получаемый статус при обращении клиента.
+        self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
+
+        # Пробуем получить удаленный экземпляр книги.
+        # Присваиваем переменной 'try_get_book' текст ошибки о том, что экземпляр не найден.
+        try_get_book = ''
+        try:
+            Book.objects.get(id=self.book_1.id)
+        except Exception as e:
+            try_get_book = str(e)
+
+        # Ожидаемое сообщение об ошибке.
+        expecting_answer = 'Book matching query does not exist.'
+        # Сравниваем ожидаемое сообщение об ошибке и сообщение, получаемое при попытке получить из БД.
+        self.assertEqual(expecting_answer, try_get_book)
+
+
+
+
+
+
+
+
+        # Пересоздать(перезалить) экземпляр Book, поскольку наши изменения update сохранились в БД.
+        # self.book_1 = Book.objects.get(id=self.book_1.id)
 
 
 
