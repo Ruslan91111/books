@@ -105,7 +105,7 @@ class BooksApiTestCase(APITestCase):
     def test_delete(self):
         # url для удаления экземпляра с указанием id.
         url = reverse('book-detail', args=(self.book_1.id,))
-        # Данные существующего в тестовой БД экземпляра с изменением цены.
+        # id существующего в тестовой БД экземпляра.
         data = {
             "id": self.book_1.id,
             }
@@ -131,15 +131,32 @@ class BooksApiTestCase(APITestCase):
         # Сравниваем ожидаемое сообщение об ошибке и сообщение, получаемое при попытке получить из БД.
         self.assertEqual(expecting_answer, try_get_book)
 
+    # Тестируем предоставление одного экземпляра.
+    def test_get_one_book(self):
+        # url экземпляра с указанием id.
+        url = reverse('book-detail', args=(self.book_1.id,))
+
+        # Логиним тестового пользователя.
+        self.client.force_login(self.user)
+        # Формируем ответ при обращении (GET) тестового пользователя к серверу.
+        response = self.client.get(url, content_type='application/json')
+        # Сравниваем ожидаемый статус соединения и получаемый статус при обращении клиента.
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+
+        # Ожидаемые данные.
+        expecting_data = {
+            "id": self.book_1.id,
+            "name": self.book_1.name,
+            "price": 25,
+            "author_name": self.book_1.author_name
+        }
+
+        # Пропускаем через сериалайзер.
+        expecting_data = BooksSerializer(expecting_data).data
+        self.assertEqual(expecting_data, response.data)
 
 
 
-
-
-
-
-        # Пересоздать(перезалить) экземпляр Book, поскольку наши изменения update сохранились в БД.
-        # self.book_1 = Book.objects.get(id=self.book_1.id)
 
 
 
