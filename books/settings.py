@@ -90,8 +90,8 @@ DATABASES = {
 
 # Аутентификация через Git аккаунт.
 AUTHENTICATION_BACKENDS = (
-    'social_core.backends.github.GithubOAuth2',
-    'django.contrib.auth.backends.ModelBackend',
+    'social_core.backends.github.GithubOAuth2',  # авторизация через социальные сети - Github
+    'django.contrib.auth.backends.ModelBackend',  # авторизация стандартным джанговским методом
 )
 
 # Password validation
