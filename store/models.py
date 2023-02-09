@@ -16,3 +16,20 @@ class Book(models.Model):
         return f'Id {self.id}: {self.name}'
 
 
+# Модель хранения отношений между пользователями и книгами.
+class UserBookRelation(models.Model):
+    RATE_CHOICES = (
+        (1, 'Ok'),
+        (2, 'Fine'),
+        (3, 'Good'),
+        (4, 'Amazing'),
+        (5, 'Incredible')
+    )
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    like = models.BooleanField(default=False)
+    in_bookmarks = models.BooleanField(default=False)
+    rate = models.PositiveSmallIntegerField(choices=RATE_CHOICES)
+
+
