@@ -213,6 +213,7 @@ class BooksApiTestCase(APITestCase):
             "price": 25,
             "author_name": self.book_1.author_name,
             "owner": self.book_1.owner,
+            "readers": []
         }
 
         # Пропускаем через сериалайзер.
@@ -263,6 +264,67 @@ class BooksRelationTestCase(APITestCase):
         relation = UserBookRelation.objects.get(user=self.user,
                                                 book=self.book_1)
         self.assertTrue(relation.like)
+
+        # Проверка на присутствия в bookmarks.
+        data = {
+            "in_bookmarks": True,
+        }
+        json_data = json.dumps(data)
+        response = self.client.patch(url, data=json_data,
+                                     content_type='application/json')
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        relation = UserBookRelation.objects.get(user=self.user,
+                                                book=self.book_1)
+        self.assertTrue(relation.in_bookmarks)
+
+    # Проверка работы отношений рейтинга.
+    def test_rate(self):
+        # При помощи reverse, куда также передаем id книги, выстраиваем нужный нам url.
+        url = reverse('userbookrelation-detail', args=(self.book_1.id,))
+
+        # Формируем данные для изменения.
+        data = {
+            "rate": 3,
+        }
+        # Переводим данные в JSON.
+        json_data = json.dumps(data)
+        # Авторизовать пользователя перед запросом.
+        self.client.force_login(self.user)
+
+        # Посылаем от нашего авторизованного пользователя на сформированный url
+        # PATCH-запрос, в котором также передаем данные о rate в формате JSON.
+        response = self.client.patch(url, data=json_data,
+                                     content_type='application/json')
+
+        # Проверка статуса сразу после запроса, чтобы было видно успешный или нет запрос.
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+
+        # Проверка на работу rate в отношении между пользователем и книгой.
+        relation = UserBookRelation.objects.get(user=self.user,
+                                                book=self.book_1)
+        self.assertEqual(3, relation.rate)
+
+    def test_rate_wrong(self):
+        # При помощи reverse, куда также передаем id книги, выстраиваем нужный нам url.
+        url = reverse('userbookrelation-detail', args=(self.book_1.id,))
+
+        # Формируем данные для изменения с ошибкой.
+        data = {
+            "rate": 30,
+        }
+        # Переводим данные в JSON.
+        json_data = json.dumps(data)
+        # Авторизовать пользователя перед запросом.
+        self.client.force_login(self.user)
+
+        # Посылаем от нашего авторизованного пользователя на сформированный url
+        # PATCH-запрос, в котором также передаем данные о rate в формате JSON.
+        response = self.client.patch(url, data=json_data,
+                                     content_type='application/json')
+
+        # Проверка статуса, установления рейтинга не должно быть.
+        self.assertEqual(status.HTTP_400_BAD_REQUEST, response.status_code)
+
 
 
 
