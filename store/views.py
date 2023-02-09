@@ -39,6 +39,12 @@ class UserBooksRelationView(UpdateModelMixin, GenericViewSet):
     # Для работы пользователя с книгами передавать не id Relation, а id книги.
     lookup_field = 'book'
 
+    def get_object(self):
+        obj, _ = UserBookRelation.objects.get_or_create(user=self.request.user,
+                                                        book_id=self.kwargs['book'])
+        return obj
+
+
 
 
 

@@ -220,7 +220,37 @@ class BooksApiTestCase(APITestCase):
         self.assertEqual(expecting_data, response.data)
 
 
+# Тестируем отношения пользователи - книги.
+# Данные не важны работаем с отношениями.
+class BooksRelationTestCase(APITestCase):
+    # Функция setUp будет запускаться каждый раз перед каждым нашим тестом.
+    def setUp(self):
+        # Создаем 2 тестовых пользователя.
+        self.user = User.objects.create(username='test_username')
+        self.user2 = User.objects.create(username='test_username2')
 
+        # Создаем 2 тестовых экземпляра книг в тестовой БД.
+        self.book_1 = Book.objects.create(name='Test book 1', price=25, author_name='Author 1', owner=self.user)
+        self.book_2 = Book.objects.create(name='Test book 2', price=55, author_name='Author 5')
+
+
+    def test_like(self):
+        # DRF reverse создает нужный нам url.
+        url = reverse('userbookrelation-detail', args=(self.book_1.id,))
+
+        data = {
+            "like": True,
+        }
+        json_data = json.dumps(data)
+        self.client.force_login(self.user)
+
+        # Разница PATCH от PUT передать можно одно поле, а не весь объект.
+        response = self.client.patch(url, data=json_data,
+                                     content_type='application/json')
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        self.book_1.refresh_from_db()
+        self.assertTrue(self.book_1.like)
+        self.assertEqual(json_data, response.data)
 
 
 
