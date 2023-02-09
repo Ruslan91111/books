@@ -29,5 +29,8 @@ class BookViewSet(ModelViewSet):
         serializer.save()
 
 
+
+
+
 def auth(request):
     return render(request, 'oauth.html')

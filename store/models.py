@@ -9,7 +9,10 @@ class Book(models.Model):
     # В данном примере 5 цифр до запятой, 2 после.
     price = models.DecimalField(max_digits=7, decimal_places=2)
     author_name = models.CharField(max_length=255)
-    owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='my_books')
+    # Связь многие ко многим, будет осуществляться через созданный нами класс UserBookRelation, указанный в through,
+    # но при этом и без класса она могла бы осуществляться по ManyToMany.
+    readers = models.ManyToManyField(User, through='UserBookRelation', related_name='books')
 
     # Переопределение магического метода - строкового представления экземпляра класса.
     def __str__(self):
@@ -31,5 +34,10 @@ class UserBookRelation(models.Model):
     like = models.BooleanField(default=False)
     in_bookmarks = models.BooleanField(default=False)
     rate = models.PositiveSmallIntegerField(choices=RATE_CHOICES)
+
+    def __str__(self):
+        return f'{self.user.username}: {self.book.name}, {self.rate}'
+
+
 
 
