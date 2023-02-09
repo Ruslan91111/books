@@ -10,7 +10,7 @@ class BooksSerializer(ModelSerializer):
     # var для подсчета вручную.
     likes_count = serializers.SerializerMethodField()
     # Подсчет через Annotate
-    annotated_likes = serializers.IntegerField()
+    annotated_likes = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Book

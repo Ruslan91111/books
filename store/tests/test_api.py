@@ -1,6 +1,7 @@
 import json
 
 from django.contrib.auth.models import User
+from django.db.models import Count, Case, When
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.exceptions import ErrorDetail
@@ -28,8 +29,11 @@ class BooksApiTestCase(APITestCase):
         url = reverse('book-list')
         # self.client предоставляется APITestCase, по сути является имитацией клиента, в том числе браузера.
         response = self.client.get(url)
+        books = Book.objects.all().annotate(
+            annotated_likes=Count(Case(When(userbookrelation__like=True, then=1))))
+
         # many=True означает, что сериализовать нужно все объекты. Переменной присвоить данные после сериализации.
-        serializer_data = BooksSerializer([self.book_1, self.book_2, self.book_3], many=True).data
+        serializer_data = BooksSerializer(books, many=True).data
         # Перед тем как сравнивать сами данные мы должны убедиться, что код возврата
         # http сервиса будет 200
         self.assertEqual(status.HTTP_200_OK, response.status_code)
@@ -38,16 +42,20 @@ class BooksApiTestCase(APITestCase):
     # Тестируем фильтр.
     def test_get_filter(self):
         url = reverse('book-list')
+        books = Book.objects.filter(id__in=[self.book_2.id, self.book_3.id]).annotate(
+            annotated_likes=Count(Case(When(userbookrelation__like=True, then=1))))
+        serializer_data = BooksSerializer(books, many=True).data
         response = self.client.get(url, data={'price': 55})
-        serializer_data = BooksSerializer([self.book_2, self.book_3], many=True).data
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertEqual(serializer_data, response.data)
 
     # Тестируем поиск.
     def test_get_search(self):
         url = reverse('book-list')
+        books = Book.objects.filter(id__in=[self.book_1.id, self.book_3.id]).annotate(
+            annotated_likes=Count(Case(When(userbookrelation__like=True, then=1))))
         response = self.client.get(url, data={'search': 'Author 1'})
-        serializer_data = BooksSerializer([self.book_1, self.book_3], many=True).data
+        serializer_data = BooksSerializer(books, many=True).data
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertEqual(serializer_data, response.data)
 
