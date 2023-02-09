@@ -5,7 +5,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.exceptions import ErrorDetail
 from rest_framework.test import APITestCase
-from store.models import Book
+from store.models import Book, UserBookRelation
 from store.serializers import BooksSerializer
 
 
@@ -233,24 +233,36 @@ class BooksRelationTestCase(APITestCase):
         self.book_1 = Book.objects.create(name='Test book 1', price=25, author_name='Author 1', owner=self.user)
         self.book_2 = Book.objects.create(name='Test book 2', price=55, author_name='Author 5')
 
-
     def test_like(self):
-        # DRF reverse создает нужный нам url.
+        # При помощи reverse, куда также передаем id книги, выстраиваем нужный нам url.
         url = reverse('userbookrelation-detail', args=(self.book_1.id,))
 
+        # Формируем данные для изменения.
         data = {
             "like": True,
         }
+        # Переводим данные в JSON.
         json_data = json.dumps(data)
+        # Авторизовать пользователя перед запросом.
         self.client.force_login(self.user)
 
         # Разница PATCH от PUT передать можно одно поле, а не весь объект.
+
+        # Посылаем от нашего авторизованного пользователя на сформированный url
+        # PATCH-запрос, в котором также передаем данные о like в формате JSON.
         response = self.client.patch(url, data=json_data,
                                      content_type='application/json')
+
+        # Проверка статуса сразу после запроса, чтобы было видно успешный или нет запрос.
         self.assertEqual(status.HTTP_200_OK, response.status_code)
-        self.book_1.refresh_from_db()
-        self.assertTrue(self.book_1.like)
-        self.assertEqual(json_data, response.data)
+
+        # Обновить book_1, а именно: вытянуть из БД после внесения изменений с помощью PATCH - запроса.
+        # self.book_1.refresh_from_db()
+
+        # Проверка на наличие like в отношении между пользователем и книгой.
+        relation = UserBookRelation.objects.get(user=self.user,
+                                                book=self.book_1)
+        self.assertTrue(relation.like)
 
 
 
