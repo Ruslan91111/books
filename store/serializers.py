@@ -11,7 +11,7 @@ class BooksSerializer(ModelSerializer):
     likes_count = serializers.SerializerMethodField()
     # Подсчет через Annotate
     annotated_likes = serializers.IntegerField(read_only=True)
-    rating = serializers.DecimalField(max_digits=3, decimal_places=2)
+    rating = serializers.DecimalField(max_digits=3, decimal_places=2, read_only=True)
 
     class Meta:
         model = Book
