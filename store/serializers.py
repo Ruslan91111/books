@@ -11,10 +11,12 @@ class BooksSerializer(ModelSerializer):
     likes_count = serializers.SerializerMethodField()
     # Подсчет через Annotate
     annotated_likes = serializers.IntegerField(read_only=True)
+    rating = serializers.DecimalField(max_digits=3, decimal_places=2)
 
     class Meta:
         model = Book
-        fields = ('id', 'name', 'price', 'author_name', 'likes_count', 'annotated_likes')
+        fields = ('id', 'name', 'price', 'author_name', 'likes_count',
+                  'annotated_likes', 'rating')
 
     # Посчитать количество лайков вручную.
     # self - сам сериализатор, instance - то, что мы сериализуем.

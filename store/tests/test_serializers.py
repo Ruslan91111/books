@@ -49,7 +49,8 @@ class BookSerializerTestCase(TestCase):
                 'author_name': 'Author 1',
                 'likes_count': 3,
                 # проверяем поле annotated_likes
-                'annotated_likes': 3
+                'annotated_likes': 3,
+
             },
             {
                 'id': book_2.id,
