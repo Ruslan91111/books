@@ -206,7 +206,6 @@ class BooksApiTestCase(APITestCase):
     def test_get_one_book(self):
         # url экземпляра с указанием id.
         url = reverse('book-detail', args=(self.book_1.id,))
-
         # Логиним тестового пользователя.
         self.client.force_login(self.user)
         # Формируем ответ при обращении (GET) тестового пользователя к серверу.
@@ -214,18 +213,15 @@ class BooksApiTestCase(APITestCase):
         # Сравниваем ожидаемый статус соединения и получаемый статус при обращении клиента.
         self.assertEqual(status.HTTP_200_OK, response.status_code)
 
-        # Ожидаемые данные.
         expecting_data = {
-            "id": self.book_1.id,
-            "name": self.book_1.name,
-            "price": 25,
-            "author_name": self.book_1.author_name,
-            "owner": self.book_1.owner,
-            "readers": []
+            'id': self.book_1.id,
+            'name': 'Test book 1',
+            'price': '25.00',
+            'author_name': 'Author 1',
+            'likes_count': 0,
+            'annotated_likes': 0
         }
 
-        # Пропускаем через сериалайзер.
-        expecting_data = BooksSerializer(expecting_data).data
         self.assertEqual(expecting_data, response.data)
 
 
