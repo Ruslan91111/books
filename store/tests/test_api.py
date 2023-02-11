@@ -44,7 +44,7 @@ class BooksApiTestCase(APITestCase):
         self.assertEqual(serializer_data, response.data)
         # Проверка на наличие Annotate.
         self.assertEqual(serializer_data[0]['rating'], '5.00')
-        self.assertEqual(serializer_data[0]['likes_count'], 1)
+        # self.assertEqual(serializer_data[0]['likes_count'], 1)
         self.assertEqual(serializer_data[0]['annotated_likes'], 1)
 
     # Тестируем фильтр.
@@ -228,7 +228,7 @@ class BooksApiTestCase(APITestCase):
             'name': 'Test book 1',
             'price': '25.00',
             'author_name': 'Author 1',
-            'likes_count': 1,
+            # 'likes_count': 1,
             'annotated_likes': 1,
             'rating': '5.00'
         }

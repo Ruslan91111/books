@@ -8,20 +8,20 @@ from .models import Book, UserBookRelation
 
 class BooksSerializer(ModelSerializer):
     # Переменная для подсчета вручную.
-    likes_count = serializers.SerializerMethodField()
+    # likes_count = serializers.SerializerMethodField()
     # Подсчет через Annotate
     annotated_likes = serializers.IntegerField(read_only=True)
     rating = serializers.DecimalField(max_digits=3, decimal_places=2, read_only=True)
 
     class Meta:
         model = Book
-        fields = ('id', 'name', 'price', 'author_name', 'likes_count',
+        fields = ('id', 'name', 'price', 'author_name',
                   'annotated_likes', 'rating')
 
     # Посчитать количество лайков вручную.
     # self - сам сериализатор, instance - то, что мы сериализуем.
-    def get_likes_count(self, instance):
-        return UserBookRelation.objects.filter(book=instance, like=True).count()
+    # def get_likes_count(self, instance):
+    #     return UserBookRelation.objects.filter(book=instance, like=True).count()
 
 
 # Сериализатор для работы пользователя с книгами(лайки, оценки)
