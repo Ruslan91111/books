@@ -9,14 +9,20 @@ from .models import Book, UserBookRelation
 class BooksSerializer(ModelSerializer):
     # Переменная для подсчета вручную.
     # likes_count = serializers.SerializerMethodField()
+
     # Подсчет через Annotate
     annotated_likes = serializers.IntegerField(read_only=True)
     rating = serializers.DecimalField(max_digits=3, decimal_places=2, read_only=True)
 
+    # source - откуда берем имя владельца книги. Book.owner -> User -> AbstractUser.username
+    # пример наследования. owner.username атрибут username ищется в дереве атрибутов и находится у AbstractUser
+    owner_name = serializers.CharField(source='owner.username', default='',
+                                       read_only=True)
+
     class Meta:
         model = Book
         fields = ('id', 'name', 'price', 'author_name',
-                  'annotated_likes', 'rating')
+                  'annotated_likes', 'rating', 'owner_name')
 
     # Посчитать количество лайков вручную.
     # self - сам сериализатор, instance - то, что мы сериализуем.
