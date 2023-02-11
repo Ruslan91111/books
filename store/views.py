@@ -14,10 +14,10 @@ from .serializers import BooksSerializer, UserBookRelationSerializer
 class BookViewSet(ModelViewSet):
 
     # Добавление в queryset .select_related('owner') ведет к сокращению количества и времени
-    # запросов SQL, применяется LEFT OUTER JOIN.
+    # запросов SQL, применяется LEFT OUTER JOIN. select - одного, prefetch - многих.
     queryset = Book.objects.all().annotate(
         annotated_likes=Count(Case(When(userbookrelation__like=True, then=1))),
-        rating=Avg('userbookrelation__rate')).select_related('owner').order_by('id')
+        rating=Avg('userbookrelation__rate')).select_related('owner').prefetch_related('readers').order_by('id')
     serializer_class = BooksSerializer
 
     # Настраиваем filter, search, ordering.
