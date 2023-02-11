@@ -27,7 +27,7 @@ class BooksSerializer(ModelSerializer):
     owner_name = serializers.CharField(source='owner.username', default='',
                                        read_only=True)
     # Чтобы вложить нашего reader внутрь словаря с книгой.
-    readers = BookReaderSerializer(many=True)
+    readers = BookReaderSerializer(many=True, read_only=True)
 
     class Meta:
         model = Book
