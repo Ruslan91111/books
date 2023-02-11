@@ -1,6 +1,7 @@
 import json
 
 from django.contrib.auth.models import User
+from django.db import connection
 from django.db.models import Count, Case, When, Avg
 from django.urls import reverse
 from rest_framework import status
@@ -8,6 +9,7 @@ from rest_framework.exceptions import ErrorDetail
 from rest_framework.test import APITestCase
 from store.models import Book, UserBookRelation
 from store.serializers import BooksSerializer
+from django.test.utils import CaptureQueriesContext
 
 
 # Тестируем API - запросы.
@@ -30,7 +32,10 @@ class BooksApiTestCase(APITestCase):
         # DRF reverse создает нужный нам url. Для получения списка при помощи ViewSet 'book-list',
         # также можно 'book-detail'.
         url = reverse('book-list')
-        # self.client предоставляется APITestCase, по сути является имитацией клиента, в том числе браузера.
+
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.get(url)
+            self.assertEqual(2, len(queries))
         response = self.client.get(url)
         books = Book.objects.all().annotate(
             annotated_likes=Count(Case(When(userbookrelation__like=True, then=1))),
@@ -213,32 +218,32 @@ class BooksApiTestCase(APITestCase):
         self.assertEqual(expecting_answer, try_get_book)
 
     # Тестируем предоставление одного экземпляра.
-    # def test_get_one_book(self):
-    #     # url экземпляра с указанием id.
-    #     url = reverse('book-detail', args=(self.book_1.id,))
-    #     # Логиним тестового пользователя.
-    #     self.client.force_login(self.user)
-    #     # Формируем ответ при обращении (GET) тестового пользователя к серверу.
-    #     response = self.client.get(url, content_type='application/json')
-    #     # Сравниваем ожидаемый статус соединения и получаемый статус при обращении клиента.
-    #     self.assertEqual(status.HTTP_200_OK, response.status_code)
-    #
-    #     expecting_data = {
-    #         'id': self.book_1.id,
-    #         'name': 'Test book 1',
-    #         'price': '25.00',
-    #         'author_name': 'Author 1',
-    #         # 'likes_count': 1,
-    #         'annotated_likes': 1,
-    #         'rating': '5.00',
-    #         'owner_name': 'test_username',
-    #         'readers': self.book_1.readers,
-    #     }
-    #
-    #     print(response.data)
-    #     print(expecting_data)
+    def test_get_one_book(self):
+        # url экземпляра с указанием id.
+        url = reverse('book-detail', args=(self.book_1.id,))
+        # Логиним тестового пользователя.
+        self.client.force_login(self.user)
+        # Формируем ответ при обращении (GET) тестового пользователя к серверу.
+        response = self.client.get(url, content_type='application/json')
+        # Сравниваем ожидаемый статус соединения и получаемый статус при обращении клиента.
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
 
-        # self.assertEqual(expecting_data, response.data)
+        expecting_data = {
+            'id': self.book_1.id,
+            'name': 'Test book 1',
+            'price': '25.00',
+            'author_name': 'Author 1',
+            # 'likes_count': 1,
+            'annotated_likes': 1,
+            'rating': '5.00',
+            'owner_name': 'test_username',
+            'readers': [{
+                        'first_name': '',
+                        'last_name': ''
+                    }],
+        }
+
+        self.assertEqual(expecting_data, response.data)
 
 
 # Тестируем отношения пользователи - книги.

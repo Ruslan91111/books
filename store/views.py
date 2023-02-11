@@ -52,13 +52,7 @@ class UserBooksRelationView(UpdateModelMixin, GenericViewSet):
         obj, _ = UserBookRelation.objects.get_or_create(user=self.request.user,
                                                         book_id=self.kwargs['book'])
         # 'book' пришел через lookup_field, а до этого пришел в url вместо book id
-
         return obj
-
-
-
-
-
 
 
 def auth(request):
