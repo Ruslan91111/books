@@ -43,7 +43,6 @@ class BookSerializerTestCase(TestCase):
             rating=Avg('userbookrelation__rate')
         ).order_by('id')
 
-
         # Здесь вручную передаем сериализатору две книги.
         # При этом во viewset передается queryset.
         data = BooksSerializer(books, many=True).data

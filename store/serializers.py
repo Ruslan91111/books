@@ -7,7 +7,7 @@ from .models import Book, UserBookRelation
 # Сериализатор — переводит структуры данных в последовательность байтов.
 
 class BooksSerializer(ModelSerializer):
-    # var для подсчета вручную.
+    # Переменная для подсчета вручную.
     likes_count = serializers.SerializerMethodField()
     # Подсчет через Annotate
     annotated_likes = serializers.IntegerField(read_only=True)
