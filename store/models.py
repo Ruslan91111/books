@@ -12,7 +12,9 @@ class Book(models.Model):
     owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='my_books')
     # Связь многие ко многим, будет осуществляться через созданный нами класс UserBookRelation, указанный в through,
     # но при этом и без класса она могла бы осуществляться по ManyToMany.
-    readers = models.ManyToManyField(User, through='UserBookRelation', related_name='books')
+    readers = models.ManyToManyField(User, through='UserBookRelation',
+                                     related_name='books')
+    rating = models.DecimalField(max_digits=3, decimal_places=2, default=None, null=True)
 
     # Переопределение магического метода - строкового представления экземпляра класса.
     def __str__(self):
