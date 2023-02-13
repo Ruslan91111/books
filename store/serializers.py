@@ -6,8 +6,6 @@ from .models import Book, UserBookRelation
 
 
 # Сериализатор — переводит структуры данных в последовательность байтов.
-
-
 class BookReaderSerializer(ModelSerializer):
     class Meta:
         model = User

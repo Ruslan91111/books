@@ -18,12 +18,11 @@ class BookViewSet(ModelViewSet):
     queryset = Book.objects.all().annotate(
         annotated_likes=Count(Case(When(userbookrelation__like=True, then=1)))
     ).select_related('owner').prefetch_related('readers').order_by('id')
-    serializer_class = BooksSerializer
-
     # Убрать отсюда rating, чтобы можно было создать поле rating в models.Book
     # rating=Avg('userbookrelation__rate')).select_related('owner').prefetch_related('readers').order_by('id')
     #     serializer_class = BooksSerializer
 
+    serializer_class = BooksSerializer
     # Настраиваем filter, search, ordering.
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend, SearchFilter, OrderingFilter]
     permission_classes = [IsOwnerOrStaffOrReadOnly]
@@ -35,7 +34,7 @@ class BookViewSet(ModelViewSet):
 
     # Переопределяем метод из CreateModelMixin, для присваивания owner во время создания книги.
     def perform_create(self, serializer):
-        # Данные из сериалайзера после того как они прошли валидацию.
+        # Данные из сериализатора после того как они прошли валидацию.
         # Кто создает книгу, тот и владелец, пользователя берем из запроса.
         serializer.validated_data['owner'] = self.request.user
         serializer.save()
@@ -48,7 +47,7 @@ class UserBooksRelationView(UpdateModelMixin, GenericViewSet):
     queryset = UserBookRelation.objects.all()
     serializer_class = UserBookRelationSerializer
 
-    # Для работы пользователя с книгами передавать не id Relation, а id книги.
+    # Для работы пользователя с книгами передавать не  Relation.id, а id книги.
     lookup_field = 'book'
 
     # Метод, который или предоставляет объект отношений, или создает, если его нет.

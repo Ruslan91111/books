@@ -7,12 +7,14 @@ from store.serializers import BooksSerializer
 
 
 # Тестируем работу сериализатора.
-# В var data собираем результат работы сериализатора, т.е. сериализацию двух тестовых объектов.
-# В var expected_data, то что ожидаем увидеть от работы сериализатора.
+# В переменной data собираем результат работы сериализатора, т.е. сериализацию двух тестовых объектов.
+# В переменной expected_data, то что ожидаем увидеть от работы сериализатора.
 # Сравниваем обе переменных
+
 class BookSerializerTestCase(TestCase):
     """Test work of serializer"""
     def test_ok(self):
+        # Три тестовых пользователя.
         user1 = User.objects.create(username='user1',
                                     first_name='Ivan', last_name='Drago')
         user2 = User.objects.create(username='user2',
@@ -20,20 +22,22 @@ class BookSerializerTestCase(TestCase):
         user3 = User.objects.create(username='user3',
                                     first_name='Vin', last_name='Diesel')
 
+        # Две тестовых книги.
         book_1 = Book.objects.create(name='Test book 1', price=25,
                                      author_name='Author 1', owner=user1)
         book_2 = Book.objects.create(name='Test book 2', price=55,
                                      author_name='Author 2')
+
+        # Шесть тестовых отношений.
         UserBookRelation.objects.create(user=user1, book=book_1, like=True,
                                         rate=5)
         UserBookRelation.objects.create(user=user2, book=book_1, like=True,
                                         rate=5)
-
+        # Переменной присваиваем созданный объект отношений,
+        # атрибуту rate присваиваем значение 4.
         user_book_3 = UserBookRelation.objects.create(user=user3, book=book_1, like=True)
         user_book_3.rate = 4
         user_book_3.save()
-
-
 
         UserBookRelation.objects.create(user=user1, book=book_2, like=True,
                                         rate=3)
