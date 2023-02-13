@@ -40,6 +40,20 @@ class UserBookRelation(models.Model):
     def __str__(self):
         return f'{self.user.username}: {self.book.name}, {self.rate}'
 
+    # Функция, вызывающаяся каждый раз при сохранении модели - ее создании и обновлении.
+    def save(self, *args, **kwargs):
+        from store.logic_rating import set_rating
+
+        # True если экземпляр создается и нет у него РК, False - если уже был ранее создан
+        creating = not self.pk
+        old_rating = self.rate
+
+        super().save(*args, **kwargs)
+
+        new_rating = self.rate
+        if old_rating != new_rating or creating:
+            set_rating(self.book)
+
 
 
 

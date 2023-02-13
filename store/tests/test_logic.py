@@ -14,14 +14,13 @@ class LogicTestCase(TestCase):
                                     first_name='Vin', last_name='Diesel')
 
         self.book_1 = Book.objects.create(name='Test book 1', price=25,
-                                     author_name='Author 1', owner=user1)
+                                          author_name='Author 1', owner=user1)
         UserBookRelation.objects.create(user=user1, book=self.book_1, like=True,
                                         rate=5)
         UserBookRelation.objects.create(user=user2, book=self.book_1, like=True,
                                         rate=5)
         UserBookRelation.objects.create(user=user3, book=self.book_1, like=True,
                                         rate=4)
-
 
     def test_ok(self):
         set_rating(self.book_1)
